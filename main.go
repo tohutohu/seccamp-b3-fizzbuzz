@@ -17,3 +17,7 @@ func main() {
 func pingpong(c echo.Context) error {
 	return c.String(http.StatusOK, "pong")
 }
+
+func getFizzbuzzHandler(c echo.Context) error {
+	return nil
+}
