@@ -1,33 +1,39 @@
 package main
 
 import (
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetFizzbuzzHandler(t *testing.T) {
 	tests := []struct {
-		param    string
-		expected string
+		param        string
+		expectedText string
+		expectedCode int
 	}{
-		{"1", "1"},
-		{"2", "2"},
-		{"3", "fizz"},
-		{"5", "buzz"},
-		{"15", "fizzbuzz"},
-		{"NaN", "invalid number"},
+		{"1", "1", 200},
+		{"2", "2", 200},
+		{"3", "fizz", 200},
+		{"5", "buzz", 200},
+		{"15", "fizzbuzz", 200},
+		{"NaN", "invalid number", 400},
 	}
 
-	for _, tt := range tests {
+	for i, tt := range tests {
 		c, rec := makeContext(tt.param)
 
-		if assert.NoError(t, getFizzbuzzHandler(c)) {
-			assert.Equal(t, http.StatusOK, rec.Code)
-			assert.Equal(t, tt.expected, rec.Body.String())
+		if err := getFizzbuzzHandler(c); err != nil {
+			t.Fatal(err)
+		}
+
+		if got, exp := rec.Code, tt.expectedCode; got != exp {
+			t.Fatalf("case %d> wrong status code: got %d, expected %d", i+1, got, exp)
+		}
+
+		if got, exp := rec.Body.String(), tt.expectedText; got != exp {
+			t.Fatalf("case %d> wrong response text: got %s, expected %s", i+1, got, exp)
 		}
 	}
 }
